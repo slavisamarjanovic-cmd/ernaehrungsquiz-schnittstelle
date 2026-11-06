@@ -1,0 +1,16 @@
+# Prüft bei jeder Änderung automatisch die Quizlogik und – falls der Ordner
+# apps-script im Repository liegt – die Übereinstimmung mit der Schnittstelle.
+# Ergebnis: grüner Haken bzw. rotes Kreuz neben dem Commit auf GitHub.
+name: Tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node tests/run-tests.js
