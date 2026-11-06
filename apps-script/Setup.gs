@@ -49,6 +49,13 @@ function einrichten() {
   buildPraxis_(ss);
   buildGruppen_(ss);
   buildDashboard_(ss);
+  // Formeln an die Spracheinstellung der Tabelle anpassen (z. B. «;» statt «,»)
+  var sep = formulaSeparator_(ss);
+  if (sep !== ',') {
+    [SHEET.EINSTELLUNGEN, EVAL.WISSEN, EVAL.FOTOS, EVAL.PRAXIS, EVAL.GRUPPEN, EVAL.DASHBOARD].forEach(function (n) {
+      localizeSheetFormulas_(ss.getSheetByName(n), sep);
+    });
+  }
   ss.setActiveSheet(ss.getSheetByName(EVAL.DASHBOARD));
   var def = ss.getSheetByName('Tabellenblatt1') || ss.getSheetByName('Sheet1');
   if (def && def.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(def);
@@ -594,6 +601,48 @@ function buildDashboard_(ss) {
     .setOption('hAxis', { format: 'percent', minValue: 0, maxValue: 1 })
     .setOption('width', W).setOption('height', 340)
     .setPosition(81, 1, 0, 0).build());
+}
+
+/* ======================= Spracheinstellung ======================= */
+
+/**
+ * Ermittelt das Trennzeichen für Formelargumente in dieser Tabelle.
+ * Apps Script schreibt Formeln in der Spracheinstellung der Tabelle:
+ * z. B. «Deutschland» verlangt «;», «Schweiz»/«USA» verlangen «,».
+ */
+function formulaSeparator_(ss) {
+  var sh = ss.getSheetByName(SHEET.EINSTELLUNGEN);
+  var probe = sh.getRange('Z1');
+  probe.setValues([['=SUM(1,2)']]); // gleicher Schreibweg wie die Auswertungsformeln
+  SpreadsheetApp.flush();
+  var v = probe.getValue();
+  probe.clearContent();
+  return v === 3 ? ',' : ';';
+}
+
+/** Ersetzt Kommas ausserhalb von Texten in Anführungszeichen durch sep. */
+function localizeFormula_(f, sep) {
+  var out = '', inStr = false;
+  for (var i = 0; i < f.length; i++) {
+    var ch = f.charAt(i);
+    if (ch === '"') inStr = !inStr;
+    out += (!inStr && ch === ',') ? sep : ch;
+  }
+  return out;
+}
+
+function localizeSheetFormulas_(sh, sep) {
+  if (!sh || sh.getLastRow() === 0) return;
+  var range = sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn());
+  var formulas = range.getFormulas();
+  var values = range.getValues();
+  var changed = false;
+  for (var r = 0; r < formulas.length; r++) {
+    for (var c = 0; c < formulas[r].length; c++) {
+      if (formulas[r][c]) { values[r][c] = localizeFormula_(formulas[r][c], sep); changed = true; }
+    }
+  }
+  if (changed) range.setValues(values);
 }
 
 /* ======================= Werkzeuge ======================= */

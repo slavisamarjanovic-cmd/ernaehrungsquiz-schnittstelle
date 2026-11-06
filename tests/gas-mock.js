@@ -35,7 +35,16 @@ class MockRange {
     }
     return out;
   }
-  getValue() { return this.getValues()[0][0]; }
+  getValue() {
+    const cell = this.sheet.cell(this.row, this.col);
+    if (cell && cell.f === "=SUM(1,2)") return this.sheet.sep === "," ? 3 : 1.2; // Sprachprobe
+    return this.getValues()[0][0];
+  }
+  getFormulas() {
+    const out = [];
+    for (let r = 0; r < this.nr; r++) { const line = []; for (let c = 0; c < this.nc; c++) { const cell = this.sheet.cell(this.row + r, this.col + c); line.push(cell && cell.f ? cell.f : ""); } out.push(line); }
+    return out;
+  }
   setValues(vals) {
     if (vals.length !== this.nr || vals.some(r => r.length !== this.nc)) throw new Error(`setValues: Dimension ${vals.length}x${vals[0] && vals[0].length} passt nicht zu ${this.nr}x${this.nc}`);
     vals.forEach((row, r) => row.forEach((v, c) => this.sheet.write(this.row + r, this.col + c, v)));
@@ -67,7 +76,7 @@ class MockRange {
   .forEach(m => { MockRange.prototype[m] = function () { return this; }; });
 
 class MockSheet {
-  constructor(name) { this.name = name; this.cells = new Map(); this.charts = []; this.writes = 0; }
+  constructor(name, sep) { this.name = name; this.sep = sep || ","; this.cells = new Map(); this.charts = []; this.writes = 0; }
   key(r, c) { return r + ":" + c; }
   cell(r, c) { return this.cells.get(this.key(r, c)); }
   del(r, c) { this.cells.delete(this.key(r, c)); }
@@ -117,9 +126,9 @@ class MockSheet {
 }
 
 class MockSpreadsheet {
-  constructor() { this.sheets = []; this.names = new Map(); this.tz = null; }
+  constructor(sep) { this.sep = sep || ","; this.sheets = []; this.names = new Map(); this.tz = null; }
   getSheetByName(n) { return this.sheets.find(s => s.name === n) || null; }
-  insertSheet(n, idx) { const s = new MockSheet(n); if (typeof idx === "number") this.sheets.splice(idx, 0, s); else this.sheets.push(s); return s; }
+  insertSheet(n, idx) { const s = new MockSheet(n, this.sep); if (typeof idx === "number") this.sheets.splice(idx, 0, s); else this.sheets.push(s); return s; }
   getSheets() { return this.sheets.slice(); }
   deleteSheet(s) { this.sheets = this.sheets.filter(x => x !== s); }
   setActiveSheet() { }
@@ -131,7 +140,7 @@ class MockSpreadsheet {
 
 function createContext(opts) {
   opts = opts || {};
-  const ss = new MockSpreadsheet();
+  const ss = new MockSpreadsheet(opts.sep);
   const cache = new Map();
   const state = { lockAvailable: true, flushes: 0, logs: [] };
   const ctx = {

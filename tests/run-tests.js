@@ -392,5 +392,28 @@ if (HAS_SERVER) {
 }
 
 if (!HAS_SERVER) console.log("\nHinweis: Ordner apps-script fehlt – nur die Browser-Logik wurde geprüft.");
+section("8  Spracheinstellung der Tabelle (Trennzeichen «;» statt «,»)");
+if (HAS_SERVER) {
+  const formulasOf = env => {
+    const m = {};
+    env.ss.getSheets().forEach(sh => { for (const [k, c] of sh.cells) if (c.f) m[sh.name + "!" + k] = c.f; });
+    return m;
+  };
+  const comma = createContext({ sep: "," }); comma.ctx.einrichten();
+  const semi = createContext({ sep: ";" }); semi.ctx.einrichten();
+  const fc = formulasOf(comma), fs2 = formulasOf(semi);
+  eq(Object.keys(fs2).length, Object.keys(fc).length, "gleiche Anzahl Formeln in beiden Spracheinstellungen");
+  ok(Object.keys(fc).length > 300, "viele Formeln geprüft (" + Object.keys(fc).length + ")");
+  const outsideQuotes = f => f.replace(/"[^"]*"/g, "");
+  ok(Object.values(fs2).every(f => !outsideQuotes(f).includes(",")), "«;»-Tabelle: keine Kommas ausserhalb von Texten");
+  ok(Object.keys(fc).every(k => fs2[k] === comma.ctx.localizeFormula_(fc[k], ";")), "«;»-Formeln entsprechen den «,»-Formeln");
+  ok(Object.keys(fc).every(k => fc[k] === comma.ctx.localizeFormula_(fc[k], ",")), "«,»-Tabelle bleibt unverändert");
+  eq(comma.ctx.localizeFormula_('=IF(A1="x, y",B1,C1)', ";"), '=IF(A1="x, y";B1;C1)', "Kommas in Texten bleiben erhalten");
+  ok(semi.ss.getSheetByName("Einstellungen").cell(1, 26) === undefined, "Sprachprobe wieder entfernt");
+  eq(semi.ss.getRangeByName("AUSW_GRUPPE").getValue(), "Alle", "Einstellungswerte bleiben erhalten");
+  const r = post(semi, payload(L.buildAnswersPayload(C.questions, fullCorrectAnswers())));
+  ok(r.ok, "Abgaben funktionieren in «;»-Tabelle");
+}
+
 console.log("\n" + (failed ? "✗" : "✓") + " " + passed + " Prüfungen bestanden, " + failed + " fehlgeschlagen");
 process.exit(failed ? 1 : 0);
