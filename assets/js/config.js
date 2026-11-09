@@ -24,7 +24,7 @@
  *   Auswertung ausgeschlossen.
  */
 window.QUIZ_CONFIG = {
-  ENDPOINT_URL: "",
+  ENDPOINT_URL: "https://script.google.com/macros/s/AKfycbxjzNODYc-ggiYkfRGQj8sDcB2CjGty5wq6oeNvMNO1IBwvFhtXH-oQ3xO_mLYoCT2U/exec",
   SURVEY_CODE_REQUIRED: false,
   REQUEST_TIMEOUT_MS: 30000
 };
