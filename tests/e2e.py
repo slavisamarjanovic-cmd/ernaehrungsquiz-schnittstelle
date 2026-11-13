@@ -86,7 +86,7 @@ try:
       page.screenshot(path=f"{OUT}/desktop-01-start.png", full_page=True)
       page.get_by_role("button", name="Quiz starten").click()
       ok(page.locator("main h1").inner_text() == "Deine Berufsgruppe", "Berufsgruppe vor dem Start")
-      ok(page.locator('input[name="gruppe"]').count() == 8, "acht Berufsgruppen zur Auswahl")
+      ok(page.locator('input[name="gruppe"]').count() == 7, "sieben Berufsgruppen zur Auswahl (ohne Hauswirtschaft)")
       ok("Vor dem Start" in page.locator("#progress-label").inner_text(), "Fortschritt: Vor dem Start")
       next_btn(page)
       expect(page.locator("main .error-box.is-visible")).to_contain_text("Berufsgruppe")

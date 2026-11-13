@@ -49,7 +49,7 @@ env.ctx.einrichten();
 env.ss.getRangeByName("EINST_MAX_ABGABEN").setValue(1000);
 let n = 0;
 // ungleich grosse Gruppen, damit die Mindestgrösse greift
-const GROUPS = [].concat(Array(10).fill("pflege"), Array(4).fill("lernende_pflege"), Array(3).fill("hotellerie"), ["andere", "arztdienst", "hauswirtschaft"]);
+const GROUPS = [].concat(Array(10).fill("pflege"), Array(4).fill("lernende_pflege"), Array(3).fill("hotellerie"), ["andere", "arztdienst", "administration"]);
 function submit(test) {
   n++;
   const body = { action: "submit", quizVersion: env.ctx.QUIZ.version, submissionId: "fc-" + String(n).padStart(5, "0") + "-xxxxxxxxxxxxxxxx", test, code: "", group: pick(GROUPS), website: "", answers: L.buildAnswersPayload(C.questions, randomAnswers()) };

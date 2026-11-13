@@ -68,7 +68,7 @@ if (HAS_SERVER) {
   eq(C.version, S.version, "Quizversion identisch");
   eq(C.questions.length, 16, "16 Fragen im Frontend");
   eq(S.groups, C.groups.options, "Berufsgruppen identisch (IDs und Bezeichnungen)");
-  eq(C.groups.options.map(g => g.label), ["Pflege", "Lernende / Studierende Pflege", "Medizinische Therapien", "Hotellerie", "Arztdienst", "Hauswirtschaft", "Administration", "Andere"], "Berufsgruppen laut Auftrag");
+  eq(C.groups.options.map(g => g.label), ["Pflege", "Lernende / Studierende Pflege", "Medizinische Therapien", "Hotellerie", "Arztdienst", "Administration", "Andere"], "Berufsgruppen laut Auftrag");
   eq(S.questions.map(q => q.id), C.questions.map(q => q.id), "Frage-IDs und Reihenfolge");
   C.questions.forEach((fq, i) => {
     const sq = S.questions[i];

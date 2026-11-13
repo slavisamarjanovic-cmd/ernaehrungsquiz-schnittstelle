@@ -38,7 +38,6 @@ window.QUIZ_CONTENT = {
       { id: "med_therapien", label: "Medizinische Therapien" },
       { id: "hotellerie", label: "Hotellerie" },
       { id: "arztdienst", label: "Arztdienst" },
-      { id: "hauswirtschaft", label: "Hauswirtschaft" },
       { id: "administration", label: "Administration" },
       { id: "andere", label: "Andere" }
     ]
